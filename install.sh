@@ -20,6 +20,10 @@ if ! command -v python3 >/dev/null 2>&1; then
 fi
 
 install -d -m 755 "$APP_DIR" "$CONFIG_DIR"
+if [ "$REPO_DIR" != "$APP_DIR" ] && [ -d "$REPO_DIR/.git" ]; then
+  rm -rf "$APP_DIR/.git"
+  cp -a "$REPO_DIR/.git" "$APP_DIR/.git"
+fi
 install -m 644 "$REPO_DIR/monitor.py" "$APP_DIR/monitor.py"
 install -m 644 "$REPO_DIR/index.html" "$APP_DIR/index.html"
 
