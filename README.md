@@ -93,10 +93,14 @@ systemctl stop shimokin-monitor
 
 ## 更新
 
+进入最初执行 `git clone` 时生成的仓库目录（如果是在 root 终端执行，通常是 `/root/shimokin-tailscale-monitor`），再拉取更新并重新安装：
+
 ```bash
-cd /opt/shimokin-monitor
+cd /root/shimokin-tailscale-monitor
 git pull
 bash install.sh
 ```
+
+如果当初把仓库克隆到了其他目录，请将上面的路径替换为实际目录。
 
 安装脚本不会覆盖已有的 `/etc/shimokin-monitor/config.json`。
