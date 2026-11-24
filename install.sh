@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ $EUID -ne 0 ]]; then
+  echo "请使用 root 执行：bash install.sh"
+  exit 1
+fi
+
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="/opt/shimokin-monitor"
 CONFIG_DIR="/etc/shimokin-monitor"
