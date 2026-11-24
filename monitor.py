@@ -75,7 +75,7 @@ def probe(target):
                                 capture_output=True, text=True, timeout=9)
         output = "\n".join(x for x in (result.stdout, result.stderr) if x).strip()
         # A pong means reachable, including when the path is relayed through DERP.
-        ok = any(re.match(r"^pong from\\s+", line.strip(), re.I) for line in output.splitlines())
+        ok = any(re.match(r"^pong from\s+", line.strip(), re.I) for line in output.splitlines())
         return ok, output[-500:] or f"tailscale ping exit={result.returncode}"
     except Exception as exc:
         return False, str(exc)
@@ -231,7 +231,7 @@ class Handler(BaseHTTPRequestHandler):
             elif path == "/api/backgrounds":
                 body = self.read_json(8 * 1024 * 1024)
                 filename = str(body.get("filename", ""))
-                match = re.search(r"\\.(jpg|jpeg|png|webp)$", filename, re.I)
+                match = re.search(r"\.(jpg|jpeg|png|webp)$", filename, re.I)
                 if not match:
                     raise ValueError("仅支持 JPG、PNG、WebP 图片")
                 raw = body.get("data", "")
