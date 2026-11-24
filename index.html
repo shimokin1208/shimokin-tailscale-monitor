@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="dark">
+<title>Shimokin · Tailscale Monitor</title>
+<style>
+:root{color-scheme:dark;--bg:#0b1020;--panel:#141c30;--muted:#93a4bf;--line:#26334c;--text:#edf3ff;--green:#36d399;--red:#fb7185;--yellow:#fbbf24}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1b2a48 0,transparent 45%),var(--bg);color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:34px 20px 60px}.top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}.eyebrow{color:#9fb2d2;font-size:12px;letter-spacing:.16em;text-transform:uppercase}.title{font-size:26px;font-weight:700;margin:3px 0}.sub{color:var(--muted);font-size:13px}
+.pill{border:1px solid var(--line);border-radius:999px;padding:6px 12px;color:var(--muted);font-size:12px;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.card{background:linear-gradient(145deg,#17223a,#11192b);border:1px solid var(--line);border-radius:16px;padding:19px;min-width:0}.hero{grid-column:span 3;display:flex;align-items:center;justify-content:space-between;min-height:142px}.label{font-size:12px;color:var(--muted);margin-bottom:8px}.value{font-size:20px;font-weight:650;overflow-wrap:anywhere}.status{font-size:28px;font-weight:750}.status.online{color:var(--green)}.status.offline{color:var(--red)}.status.unknown{color:var(--yellow)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:currentColor;margin-right:10px;box-shadow:0 0 18px currentColor}.section{margin:28px 0 12px;font-size:16px}.events{padding:0;list-style:none;margin:0}.events li{display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--line);align-items:flex-start}.time{color:var(--muted);font-size:12px;min-width:150px;font-variant-numeric:tabular-nums}.message{flex:1;overflow-wrap:anywhere}.kind-error{color:var(--red)}.kind-success{color:var(--green)}.foot{color:var(--muted);font-size:12px;margin-top:24px}
+@media(max-width:650px){main{padding:24px 14px}.grid{grid-template-columns:1fr 1fr}.hero{grid-column:span 2}.card:last-child{grid-column:span 2}.time{min-width:0;width:118px}.title{font-size:22px}}
+</style>
+</head>
+<body><main>
+<header class="top"><div><div class="eyebrow">PRIVATE NETWORK · STATUS</div><div class="title">Shimokin Monitor</div><div class="sub">Tailscale 设备在线监控</div></div><div class="pill" id="updated">正在连接…</div></header>
+<section class="grid">
+<div class="card hero"><div><div class="label">监控设备</div><div class="value" id="target">shimokin</div><div class="sub">每 <span id="interval">60</span> 秒检测一次</div></div><div id="status" class="status unknown"><span class="dot"></span>等待检测</div></div>
+<div class="card"><div class="label">最后在线时间</div><div class="value" id="lastOnline">—</div></div>
+<div class="card"><div class="label">最后检测时间</div><div class="value" id="lastCheck">—</div></div>
+<div class="card"><div class="label">连续失败次数</div><div class="value" id="failures">0</div></div>
+</section>
+<h2 class="section">运行事件</h2><div class="card"><ul class="events" id="events"><li>正在读取监控数据…</li></ul></div>
+<div class="foot">页面每 5 秒自动刷新 · 仅供 Tailnet 内访问</div>
+</main>
+<script>
+const el=id=>document.getElementById(id);
+function fmt(v){if(!v)return "—";try{return new Date(v).toLocaleString("zh-CN",{hour12:false})}catch{return v}}
+async function refresh(){
+ try{
+  const r=await fetch("/api/status",{cache:"no-store"});if(!r.ok)throw Error("HTTP "+r.status);
+  const s=await r.json();const st=el("status");
+  st.className="status "+s.status;
+  const words={online:"在线",offline:"离线",unknown:"等待检测"};
+  st.replaceChildren();const dot=document.createElement("span");dot.className="dot";st.append(dot,document.createTextNode(words[s.status]||s.status));
+  el("target").textContent=s.target;el("interval").textContent=s.interval;el("lastOnline").textContent=fmt(s.last_online);el("lastCheck").textContent=fmt(s.last_check);el("failures").textContent=s.failures;
+  el("updated").textContent="更新于 "+new Date().toLocaleTimeString("zh-CN",{hour12:false});
+  const list=el("events");list.replaceChildren();
+  if(!s.events||!s.events.length){const li=document.createElement("li");li.textContent="暂无事件";list.append(li)}
+  else for(const e of s.events){const li=document.createElement("li"),t=document.createElement("span"),m=document.createElement("span");t.className="time";t.textContent=fmt(e.time);m.className="message kind-"+(e.kind||"info");m.textContent=e.message;li.append(t,m);list.append(li)}
+ }catch(e){el("updated").textContent="连接失败："+e.message}
+}
+refresh();setInterval(refresh,5000);
+</script></body></html>
