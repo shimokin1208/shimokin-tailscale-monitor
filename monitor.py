@@ -61,7 +61,7 @@ def send_mail(cfg, subject, body):
 def probe(target):
     try:
         result = subprocess.run(
-            ["tailscale", "ping", "--timeout=6s", target],
+            ["tailscale", "ping", "--c=1", "--timeout=6s", target],
             capture_output=True, text=True, timeout=9
         )
         return result.returncode == 0, (result.stdout or result.stderr).strip()[-300:]
