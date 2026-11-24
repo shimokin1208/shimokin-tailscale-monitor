@@ -64,7 +64,12 @@ def probe(target):
             ["tailscale", "ping", "--c=1", "--timeout=6s", target],
             capture_output=True, text=True, timeout=9
         )
-        return result.returncode == 0, (result.stdout or result.stderr).strip()[-300:]
+        output = "\\n".join(part for part in (result.stdout, result.stderr) if part).strip()
+        # tailscale ping may print a valid pong and then report that a direct
+        # connection was not established (DERP relay is being used). A pong
+        # is a successful reachability check even if the CLI exit code is nonzero.
+        ok = any(line.lstrip().startswith("pong from ") for line in output.splitlines())
+        return ok, output[-300:]
     except Exception as exc:
         return False, str(exc)
 
