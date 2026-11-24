@@ -1,0 +1,16 @@
+{
+  "target": "shimokin",
+  "interval": 60,
+  "failure_threshold": 3,
+  "web_port": 8765,
+  "smtp": {
+    "enabled": false,
+    "host": "smtp.qq.com",
+    "port": 465,
+    "use_ssl": true,
+    "username": "",
+    "password": "",
+    "from_addr": "",
+    "to_addrs": []
+  }
+}
