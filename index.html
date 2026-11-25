@@ -29,12 +29,12 @@ body{
 /* 背景 */
 #wall{
   position:fixed;inset:0;z-index:-2;
-  background-size:cover;background-position:center;
-  transition:background-image .8s ease, opacity .8s ease;
+  background-size:cover;background-position:center;opacity:1;transform:scale(1.02);
+  transition:background-image .8s ease, opacity .35s ease;
 }
 #shade{
   position:fixed;inset:0;z-index:-1;
-  background:linear-gradient(180deg,rgba(247,249,252,.86),rgba(247,249,252,.93) 45%,rgba(242,244,248,.96));
+  background:linear-gradient(180deg,rgba(247,249,252,.35),rgba(247,249,252,.48) 45%,rgba(242,244,248,.58));
   backdrop-filter:blur(2px);
 }
 main{width:min(960px,calc(100% - 36px));margin:auto;padding:46px 0 64px}
@@ -66,7 +66,7 @@ button:active{transform:none}
 
 /* 卡片 */
 .panel{
-  background:var(--card);border:1px solid rgba(255,255,255,.7);
+  background:rgba(255,255,255,.80);border:1px solid rgba(255,255,255,.86);
   border-radius:var(--radius);padding:24px;
   backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   box-shadow:0 8px 30px rgba(31,41,55,.07),0 1px 2px rgba(31,41,55,.04);
@@ -125,6 +125,13 @@ input[type=checkbox]{width:auto;accent-color:var(--accent)}
 input[type=file]{padding:8px;font-size:13px}
 .check{display:flex;align-items:center;gap:9px}
 .hint{font-size:12px;color:var(--muted);margin-top:10px}
+.settings-section{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.settings-section h3{margin:0 0 12px;font-size:14px}
+.setting-row{padding:10px 0}
+.setting-row label{display:block;margin-bottom:6px}
+.range-wrap{display:flex;align-items:center;gap:12px}
+.range-wrap input[type=range]{padding:0;accent-color:var(--accent)}
+.range-value{min-width:42px;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
 .row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px}
 .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
 .thumb{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:#eef1f6}
@@ -157,10 +164,7 @@ input[type=file]{padding:8px;font-size:13px}
         <div class="sub">Tailscale 设备在线状态</div>
       </div>
     </div>
-    <div class="actions">
-      <button onclick="openBackgrounds()">背景</button>
-      <button class="primary" onclick="openSettings()">设置</button>
-    </div>
+    <div class="actions"><button class="primary" onclick="openSettings()">设置</button></div>
   </header>
 
   <section class="panel hero">
@@ -184,7 +188,7 @@ input[type=file]{padding:8px;font-size:13px}
 </main>
 
 <dialog id="settings">
-  <div class="modalhead"><h2>邮件告警设置</h2><button onclick="closeDialog('settings')">关闭</button></div>
+  <div class="modalhead"><h2>设置</h2><button onclick="closeDialog('settings')">关闭</button></div>
   <form id="smtpForm">
     <div class="formgrid">
       <div class="field full check"><input id="enabled" type="checkbox"><label for="enabled">启用 SMTP 邮件告警</label></div>
@@ -197,24 +201,16 @@ input[type=file]{padding:8px;font-size:13px}
       <div class="field full"><label>SMTP 授权码 / 密码</label><input id="password" type="password" placeholder="留空表示保持当前授权码"></div>
     </div>
     <div class="hint">QQ 邮箱请填写邮箱设置中生成的 SMTP 授权码，不是网页登录密码。授权码保存在服务器，不会回传到网页。</div>
-    <div class="row"><button type="button" onclick="testMail()">发送测试邮件</button><button class="primary" type="submit">保存设置</button></div>
+    <div class="row"><button type="button" onclick="testMail()">发送测试邮件</button><button class="primary" type="submit">保存邮件设置</button></div>
     <div class="notice" id="smtpMsg"></div>
   </form>
+  <section class="settings-section">
+    <h3>背景外观</h3>
+    <div class="setting-row"><label for="wallOpacity">背景图片透明度</label><div class="range-wrap"><input id="wallOpacity" type="range" min="10" max="100" step="5" value="100"><span class="range-value" id="wallOpacityValue">100%</span></div></div>
+    <div class="setting-row"><label for="shadeStrength">背景遮罩强度（降低可让图片更清晰）</label><div class="range-wrap"><input id="shadeStrength" type="range" min="0" max="85" step="5" value="35"><span class="range-value" id="shadeStrengthValue">35%</span></div></div>
+    <div class="hint">滑动立即生效，设置保存在当前浏览器。图片透明度和遮罩强度可分别调整。</div>
+  </section>
 </dialog>
-
-<dialog id="backgrounds">
-  <div class="modalhead"><h2>背景图片轮播</h2><button onclick="closeDialog('backgrounds')">关闭</button></div>
-  <div class="field"><label>添加背景图片（JPG / PNG / WebP，单张不超过 5MB）</label><input id="bgFile" type="file" accept="image/jpeg,image/png,image/webp"></div>
-  <div class="row">
-    <div class="field"><label>轮播间隔（秒）</label><input id="bgInterval" type="number" min="5" max="3600" value="30"></div>
-    <div class="field check"><input id="useApi" type="checkbox" checked><label for="useApi">使用在线随机壁纸（API）</label></div>
-    <button class="primary" onclick="uploadBg()">上传图片</button>
-  </div>
-  <div class="hint">开启后每次刷新都向在线壁纸 API 随机取图；关闭则使用内置图和上传的图片。上传的图只作备用。</div>
-  <div class="gallery" id="gallery"></div>
-  <div class="notice" id="bgMsg"></div>
-</dialog>
-
 <script>
 const $=id=>document.getElementById(id);
 const BUILTIN=["/bg/p103613710.jpg","/bg/p113114703.jpg","/bg/p120337189.jpg","/bg/p94927949.jpg"];
@@ -282,50 +278,6 @@ async function testMail(){
   catch(e){$("smtpMsg").textContent="发送失败："+e.message}
 }
 
-async function openBackgrounds(){
-  try{
-    const d=await api("/api/config");
-    bgList=d.backgrounds||[];
-    renderGallery();
-    $("bgMsg").textContent="";
-    $("backgrounds").showModal();
-  }catch(e){alert(e.message)}
-}
-
-function renderGallery(){
-  const g=$("gallery");g.replaceChildren();
-  for(const n of bgList){
-    const box=document.createElement("div");box.className="thumb";
-    const im=document.createElement("img");im.src="/backgrounds/"+encodeURIComponent(n);
-    const b=document.createElement("button");b.textContent="删除";b.onclick=()=>deleteBg(n);
-    box.append(im,b);g.append(box);
-  }
-}
-
-async function uploadBg(){
-  const f=$("bgFile").files[0];
-  if(!f){$("bgMsg").textContent="请先选择图片";return}
-  if(f.size>5*1024*1024){$("bgMsg").textContent="图片超过 5MB";return}
-  const reader=new FileReader();
-  reader.onload=async()=>{
-    try{
-      const d=await api("/api/backgrounds",{method:"POST",headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({filename:f.name,data:reader.result})});
-      bgList=d.backgrounds;renderGallery();applyBackground();
-      $("bgFile").value="";$("bgMsg").textContent="上传成功";
-    }catch(e){$("bgMsg").textContent="上传失败："+e.message}
-  };
-  reader.readAsDataURL(f);
-}
-
-async function deleteBg(n){
-  if(!confirm("删除这张背景图片？"))return;
-  try{
-    const d=await api("/api/backgrounds/"+encodeURIComponent(n),{method:"DELETE"});
-    bgList=d.backgrounds;renderGallery();applyBackground();
-  }catch(e){$("bgMsg").textContent=e.message}
-}
-
 /* 随机壁纸：在线 API + 本地兜底 */
 const API_SRC=[
   "https://t.alcy.cc/pc",
@@ -335,40 +287,37 @@ const API_SRC=[
 ];
 let apiCursor=0;
 function bust(u){return u+(u.includes("?")?"&":"?")+"_="+Date.now()}
-function localPool(){return BUILTIN.map(u=>encodeURI(u)).concat(bgList.map(n=>"/backgrounds/"+encodeURIComponent(n)))}
 function loadImg(u){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(u);im.onerror=rej;im.src=u})}
 async function nextWall(){
-  const box=$("useApi"),useApi=!box||box.checked;
-  if(useApi){
-    for(let i=0;i<API_SRC.length;i++){
-      const idx=(apiCursor+i)%API_SRC.length;
-      const u=bust(API_SRC[idx]);
-      try{
-        await loadImg(u);
-        apiCursor=(idx+1)%API_SRC.length;
-        $("wall").style.backgroundImage=`url("${u}")`;
-        return;
-      }catch{}
-    }
+  for(let i=0;i<API_SRC.length;i++){
+    const idx=(apiCursor+i)%API_SRC.length;
+    const u=bust(API_SRC[idx]);
+    try{
+      await loadImg(u);
+      apiCursor=(idx+1)%API_SRC.length;
+      $("wall").style.backgroundImage=`url("${u}")`;
+      return;
+    }catch{}
   }
-  const all=localPool();
-  if(!all.length){$("wall").style.backgroundImage="none";return}
-  $("wall").style.backgroundImage=`url("${all[Math.floor(Math.random()*all.length)]}")`;
+  $("wall").style.backgroundImage="none";
 }
-function applyBackground(){
-  clearInterval(bgTimer);
-  bgSeconds=Math.max(5,Math.min(3600,Number($("bgInterval").value)||30));
-  nextWall();
-  bgTimer=setInterval(nextWall,bgSeconds*1000);
+function applyAppearance(){
+  const wallOpacity=Number(localStorage.getItem("wallOpacity")??100);
+  const shadeStrength=Number(localStorage.getItem("shadeStrength")??35);
+  $("wall").style.opacity=wallOpacity/100;
+  $("wallOpacity").value=wallOpacity;
+  $("wallOpacityValue").textContent=wallOpacity+"%";
+  $("shadeStrength").value=shadeStrength;
+  $("shadeStrengthValue").textContent=shadeStrength+"%";
+  const a=shadeStrength/100;
+  $("shade").style.background=`linear-gradient(180deg,rgba(247,249,252,${a}),rgba(247,249,252,${Math.min(.92,a+.12)}) 45%,rgba(242,244,248,${Math.min(.96,a+.22)}))`;
 }
-$("useApi")&&$("useApi").addEventListener("change",applyBackground);
-
-$("bgInterval").addEventListener("change",applyBackground);
+$("wallOpacity").addEventListener("input",e=>{localStorage.setItem("wallOpacity",e.target.value);applyAppearance()});
+$("shadeStrength").addEventListener("input",e=>{localStorage.setItem("shadeStrength",e.target.value);applyAppearance()});
+applyAppearance();
+nextWall();
 refresh();setInterval(refresh,5000);
-openBackgroundsInitial();
-async function openBackgroundsInitial(){
-  try{const d=await api("/api/config");bgList=d.backgrounds||[];applyBackground()}
-  catch{applyBackground()}
+catch{applyBackground()}
 }
 </script>
 </body>
