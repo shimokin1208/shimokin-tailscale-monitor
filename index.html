@@ -1,41 +1,375 @@
 <!doctype html>
-<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="dark"><title>Shimokin · 设备监控</title>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>Shimokin · 设备监控</title>
 <style>
-:root{--glass:rgba(13,20,34,.76);--line:rgba(255,255,255,.13);--muted:#b7c3d6;--text:#f5f7fb;--green:#62e6b0;--red:#ff788e;--gold:#ffd27d}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--text);font:15px/1.6 system-ui,-apple-system,"Segoe UI",sans-serif;background:#0a1220;overflow-x:hidden}
-#wall{position:fixed;inset:0;background:linear-gradient(120deg,rgba(5,12,24,.82),rgba(5,12,24,.48)),radial-gradient(ellipse at 15% 15%,#344c70,#0a1220 70%);background-size:cover;background-position:center;z-index:-2;transition:background-image 1s ease}#shade{position:fixed;inset:0;background:linear-gradient(90deg,rgba(5,10,20,.45),rgba(5,10,20,.16));backdrop-filter:blur(1px);z-index:-1}
-main{width:min(1080px,calc(100% - 32px));margin:auto;padding:32px 0 56px}.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}.brand{display:flex;gap:13px;align-items:center}.logo{width:44px;height:44px;border-radius:15px;background:linear-gradient(135deg,#86a8ff,#7ae6c2);display:grid;place-items:center;color:#102036;font-size:23px;font-weight:900;box-shadow:0 8px 28px #4778b455}.eyebrow{font-size:11px;letter-spacing:.18em;color:#b9c9df}.title{font-size:25px;font-weight:760;letter-spacing:.01em}.sub{color:var(--muted);font-size:13px}.actions{display:flex;gap:9px;flex-wrap:wrap}button,.btn{border:1px solid var(--line);background:rgba(255,255,255,.09);color:white;border-radius:12px;padding:9px 13px;font:inherit;cursor:pointer}button:hover{background:rgba(255,255,255,.16)}.primary{background:#729cff;color:#101c31;border:0;font-weight:700}
-.panel{background:var(--glass);border:1px solid var(--line);border-radius:20px;padding:21px;backdrop-filter:blur(18px);box-shadow:0 18px 60px #0003}.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;min-height:168px;margin-bottom:15px}.kicker{font-size:12px;color:var(--muted);letter-spacing:.08em}.device{font-size:26px;font-weight:750;margin:4px 0}.status{font-size:26px;font-weight:800;white-space:nowrap}.status.online{color:var(--green)}.status.offline{color:var(--red)}.status.unknown{color:var(--gold)}.dot{display:inline-block;width:10px;height:10px;border-radius:50%;background:currentColor;margin-right:10px;box-shadow:0 0 18px currentColor}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.stat .num{font-size:21px;font-weight:700;margin-top:5px;overflow-wrap:anywhere}.section{font-size:17px;margin:27px 0 12px}.events{list-style:none;margin:0;padding:0}.events li{display:flex;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}.events li:last-child{border:0}.time{font-size:12px;color:var(--muted);min-width:155px}.message{overflow-wrap:anywhere;flex:1}.kind-error{color:var(--red)}.kind-success{color:var(--green)}.foot{color:#c1ccdc;font-size:12px;text-align:center;margin-top:20px}
-dialog{width:min(620px,calc(100% - 24px));max-height:88vh;overflow:auto;border:1px solid var(--line);border-radius:20px;background:#111b2c;color:var(--text);padding:22px;box-shadow:0 24px 90px #0009}dialog::backdrop{background:#020711b8;backdrop-filter:blur(5px)}.modalhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:16px}.modalhead h2{font-size:19px;margin:0}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:5px}.field.full{grid-column:1/-1}label{font-size:12px;color:var(--muted)}input,select{width:100%;border:1px solid var(--line);background:#0a1322;color:white;border-radius:10px;padding:11px;font:inherit;min-width:0}input[type=checkbox]{width:auto;accent-color:#85aaff}.check{display:flex;align-items:center;gap:9px}.hint{font-size:12px;color:var(--muted)}.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:16px}.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}.thumb{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:#26354a}.thumb img{width:100%;height:100%;object-fit:cover}.thumb button{position:absolute;right:6px;top:6px;padding:4px 8px;background:#101827d9}.notice{font-size:13px;margin-top:12px;color:var(--gold);min-height:22px}
-@media(max-width:650px){main{padding-top:20px}.top{align-items:flex-start}.title{font-size:21px}.logo{width:40px;height:40px}.hero{align-items:flex-start;flex-direction:column;min-height:0}.status{font-size:23px}.stats{grid-template-columns:1fr 1fr}.stat:last-child{grid-column:1/-1}.panel{padding:17px}.time{min-width:0;width:116px}.gallery{grid-template-columns:repeat(2,1fr)}.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}}
-</style></head>
-<body><div id="wall"></div><div id="shade"></div><main>
-<header class="top"><div class="brand"><div class="logo">S</div><div><div class="eyebrow">PERSONAL NETWORK MONITOR</div><div class="title">Shimokin Monitor</div><div class="sub">Tailscale 设备在线状态</div></div></div><div class="actions"><button onclick="openBackgrounds()">背景</button><button class="primary" onclick="openSettings()">设置</button></div></header>
-<section class="panel hero"><div><div class="kicker">正在监控的设备</div><div class="device" id="target">shimokin</div><div class="sub">每 <b id="interval">60</b> 秒自动检测 · 连续失败达到阈值才判离线</div></div><div id="status" class="status unknown"><span class="dot"></span>等待检测</div></section>
-<section class="stats"><div class="panel stat"><div class="kicker">最后在线时间</div><div class="num" id="lastOnline">—</div></div><div class="panel stat"><div class="kicker">最后检测时间</div><div class="num" id="lastCheck">—</div></div><div class="panel stat"><div class="kicker">连续失败次数</div><div class="num" id="failures">0</div></div></section>
-<h2 class="section">最近运行事件</h2><section class="panel"><ul class="events" id="events"><li>正在读取监控数据…</li></ul></section><div class="foot" id="updated">每 5 秒自动刷新 · 管理操作需要密码验证</div>
+:root{
+  --card:rgba(255,255,255,.78);
+  --card-solid:#fff;
+  --line:rgba(17,24,39,.08);
+  --text:#20242e;
+  --muted:#7c8494;
+  --accent:#4f7cff;
+  --green:#12a150;
+  --red:#e5484d;
+  --gold:#b7791f;
+  --radius:18px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;color:var(--text);
+  font:15px/1.65 -apple-system,"PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:#f2f4f8;overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+}
+/* 背景 */
+#wall{
+  position:fixed;inset:0;z-index:-2;
+  background-size:cover;background-position:center;
+  transition:background-image .8s ease, opacity .8s ease;
+}
+#shade{
+  position:fixed;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(247,249,252,.86),rgba(247,249,252,.93) 45%,rgba(242,244,248,.96));
+  backdrop-filter:blur(2px);
+}
+main{width:min(960px,calc(100% - 36px));margin:auto;padding:46px 0 64px}
+
+/* 头部 */
+.top{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:26px;flex-wrap:wrap}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{
+  width:46px;height:46px;border-radius:14px;
+  background:linear-gradient(135deg,#8fb0ff,#b7f0d8);
+  display:grid;place-items:center;color:#fff;font-size:22px;font-weight:800;
+  box-shadow:0 8px 22px rgba(79,124,255,.25);
+}
+.eyebrow{font-size:10.5px;letter-spacing:.2em;color:var(--muted);text-transform:uppercase}
+.title{font-size:22px;font-weight:700;letter-spacing:-.01em}
+.sub{color:var(--muted);font-size:12.5px}
+
+/* 按钮 */
+button,.btn{
+  border:1px solid var(--line);background:rgba(255,255,255,.72);
+  color:var(--text);border-radius:11px;padding:8px 14px;font:inherit;font-size:13.5px;
+  cursor:pointer;transition:.18s ease;backdrop-filter:blur(8px);
+}
+button:hover{background:#fff;transform:translateY(-1px);box-shadow:0 6px 16px rgba(31,41,55,.08)}
+button:active{transform:none}
+.primary{background:var(--accent);border-color:transparent;color:#fff;font-weight:600}
+.primary:hover{background:#3f6df0;box-shadow:0 8px 20px rgba(79,124,255,.3)}
+.actions{display:flex;gap:9px;flex-wrap:wrap}
+
+/* 卡片 */
+.panel{
+  background:var(--card);border:1px solid rgba(255,255,255,.7);
+  border-radius:var(--radius);padding:24px;
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  box-shadow:0 8px 30px rgba(31,41,55,.07),0 1px 2px rgba(31,41,55,.04);
+}
+
+/* 主卡片 */
+.hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:28px;margin-bottom:16px}
+.kicker{font-size:11.5px;color:var(--muted);letter-spacing:.06em}
+.device{font-size:27px;font-weight:750;margin:6px 0 4px;letter-spacing:-.02em}
+.status{
+  font-size:24px;font-weight:750;white-space:nowrap;display:flex;align-items:center;gap:10px;
+  padding:10px 20px;border-radius:14px;background:rgba(255,255,255,.6);
+}
+.status.online{color:var(--green)}
+.status.offline{color:var(--red)}
+.status.unknown{color:var(--gold)}
+.dot{width:9px;height:9px;border-radius:50%;background:currentColor;box-shadow:0 0 0 4px color-mix(in srgb,currentColor 16%,transparent)}
+
+/* 统计 */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.stat{padding:20px}
+.stat .kicker{margin-bottom:2px}
+.stat .num{font-size:19px;font-weight:650;margin-top:6px;overflow-wrap:anywhere;letter-spacing:-.01em}
+
+/* 事件 */
+.section{font-size:16px;font-weight:700;margin:32px 0 14px;padding-left:2px}
+.events{list-style:none;margin:0;padding:0}
+.events li{display:flex;gap:18px;padding:14px 2px;border-bottom:1px solid var(--line)}
+.events li:last-child{border-bottom:0}
+.time{font-size:12px;color:var(--muted);min-width:150px;font-variant-numeric:tabular-nums}
+.message{overflow-wrap:anywhere;flex:1;font-size:14px}
+.kind-error{color:var(--red)}
+.kind-success{color:var(--green)}
+.foot{color:var(--muted);font-size:12px;text-align:center;margin-top:26px}
+
+/* 弹窗 */
+dialog{
+  width:min(600px,calc(100% - 28px));max-height:86vh;overflow:auto;
+  border:1px solid var(--line);border-radius:var(--radius);
+  background:rgba(255,255,255,.97);color:var(--text);padding:26px;
+  box-shadow:0 30px 90px rgba(17,24,39,.18);
+}
+dialog::backdrop{background:rgba(30,41,59,.28);backdrop-filter:blur(4px)}
+.modalhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px}
+.modalhead h2{font-size:17px;margin:0;font-weight:700}
+.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+.field{display:flex;flex-direction:column;gap:6px}
+.field.full{grid-column:1/-1}
+label{font-size:12px;color:var(--muted)}
+input,select{
+  width:100%;border:1px solid var(--line);background:#f8f9fc;color:var(--text);
+  border-radius:10px;padding:10px 12px;font:inherit;font-size:14px;min-width:0;
+}
+input:focus,select:focus{outline:none;border-color:#b9c9ff;background:#fff;box-shadow:0 0 0 3px rgba(79,124,255,.1)}
+input[type=checkbox]{width:auto;accent-color:var(--accent)}
+input[type=file]{padding:8px;font-size:13px}
+.check{display:flex;align-items:center;gap:9px}
+.hint{font-size:12px;color:var(--muted);margin-top:10px}
+.row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:16px}
+.gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px}
+.thumb{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:#eef1f6}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb button{position:absolute;right:6px;top:6px;padding:3px 9px;font-size:12px;background:rgba(255,255,255,.92)}
+.notice{font-size:13px;margin-top:12px;color:var(--gold);min-height:20px}
+
+@media(max-width:680px){
+  main{padding-top:26px}
+  .hero{flex-direction:column;align-items:flex-start;padding:22px}
+  .stats{grid-template-columns:1fr 1fr}
+  .stat:last-child{grid-column:1/-1}
+  .panel{padding:18px}
+  .time{min-width:0;width:104px}
+  .gallery{grid-template-columns:repeat(2,1fr)}
+  .formgrid{grid-template-columns:1fr}
+  .field.full{grid-column:auto}
+}
+</style>
+</head>
+<body>
+<div id="wall"></div><div id="shade"></div>
+<main>
+  <header class="top">
+    <div class="brand">
+      <div class="logo">S</div>
+      <div>
+        <div class="eyebrow">Personal Network Monitor</div>
+        <div class="title">Shimokin Monitor</div>
+        <div class="sub">Tailscale 设备在线状态</div>
+      </div>
+    </div>
+    <div class="actions">
+      <button onclick="openBackgrounds()">背景</button>
+      <button class="primary" onclick="openSettings()">设置</button>
+    </div>
+  </header>
+
+  <section class="panel hero">
+    <div>
+      <div class="kicker">正在监控的设备</div>
+      <div class="device" id="target">shimokin</div>
+      <div class="sub">每 <b id="interval">60</b> 秒自动检测 · 连续失败达到阈值才判离线</div>
+    </div>
+    <div id="status" class="status unknown"><span class="dot"></span>等待检测</div>
+  </section>
+
+  <section class="stats">
+    <div class="panel stat"><div class="kicker">最后在线时间</div><div class="num" id="lastOnline">—</div></div>
+    <div class="panel stat"><div class="kicker">最后检测时间</div><div class="num" id="lastCheck">—</div></div>
+    <div class="panel stat"><div class="kicker">连续失败次数</div><div class="num" id="failures">0</div></div>
+  </section>
+
+  <h2 class="section">最近运行事件</h2>
+  <section class="panel"><ul class="events" id="events"><li>正在读取监控数据…</li></ul></section>
+  <div class="foot" id="updated">每 5 秒自动刷新 · 管理操作需要密码验证</div>
 </main>
-<dialog id="settings"><div class="modalhead"><h2>邮件告警设置</h2><button onclick="closeDialog('settings')">关闭</button></div><form id="smtpForm"><div class="formgrid">
-<div class="field full check"><input id="enabled" type="checkbox"><label for="enabled">启用 SMTP 邮件告警</label></div>
-<div class="field"><label>SMTP 服务器</label><input id="host" placeholder="smtp.qq.com" required></div><div class="field"><label>端口</label><input id="port" type="number" min="1" max="65535" value="465" required></div>
-<div class="field"><label>连接方式</label><select id="ssl"><option value="true">SSL（通常 465）</option><option value="false">STARTTLS（通常 587）</option></select></div><div class="field"><label>发件邮箱账号</label><input id="username" type="email" placeholder="name@qq.com"></div>
-<div class="field"><label>发件人地址</label><input id="from" type="email" placeholder="留空则使用账号"></div><div class="field"><label>收件邮箱（多个用逗号分隔）</label><input id="to" placeholder="you@example.com"></div>
-<div class="field full"><label>SMTP 授权码 / 密码</label><input id="password" type="password" placeholder="留空表示保持当前授权码"></div></div><div class="hint">QQ 邮箱请填写邮箱设置中生成的 SMTP 授权码，不是网页登录密码。授权码保存在服务器，不会回传到网页。</div><div class="row"><button type="button" onclick="testMail()">发送测试邮件</button><button class="primary" type="submit">保存设置</button></div><div class="notice" id="smtpMsg"></div></form></dialog>
-<dialog id="backgrounds"><div class="modalhead"><h2>背景图片轮播</h2><button onclick="closeDialog('backgrounds')">关闭</button></div><div class="field"><label>添加背景图片（JPG / PNG / WebP，单张不超过 5MB）</label><input id="bgFile" type="file" accept="image/jpeg,image/png,image/webp"></div><div class="row"><div class="field"><label>轮播间隔（秒）</label><input id="bgInterval" type="number" min="5" max="3600" value="15"></div><button class="primary" onclick="uploadBg()">上传图片</button></div><div class="hint">上传的图片保存在服务器；有多张图片时自动轮播。删除全部图片会恢复默认背景。</div><div class="gallery" id="gallery"></div><div class="notice" id="bgMsg"></div></dialog>
+
+<dialog id="settings">
+  <div class="modalhead"><h2>邮件告警设置</h2><button onclick="closeDialog('settings')">关闭</button></div>
+  <form id="smtpForm">
+    <div class="formgrid">
+      <div class="field full check"><input id="enabled" type="checkbox"><label for="enabled">启用 SMTP 邮件告警</label></div>
+      <div class="field"><label>SMTP 服务器</label><input id="host" placeholder="smtp.qq.com" required></div>
+      <div class="field"><label>端口</label><input id="port" type="number" min="1" max="65535" value="465" required></div>
+      <div class="field"><label>连接方式</label><select id="ssl"><option value="true">SSL（通常 465）</option><option value="false">STARTTLS（通常 587）</option></select></div>
+      <div class="field"><label>发件邮箱账号</label><input id="username" type="email" placeholder="name@qq.com"></div>
+      <div class="field"><label>发件人地址</label><input id="from" type="email" placeholder="留空则使用账号"></div>
+      <div class="field"><label>收件邮箱（多个用逗号分隔）</label><input id="to" placeholder="you@example.com"></div>
+      <div class="field full"><label>SMTP 授权码 / 密码</label><input id="password" type="password" placeholder="留空表示保持当前授权码"></div>
+    </div>
+    <div class="hint">QQ 邮箱请填写邮箱设置中生成的 SMTP 授权码，不是网页登录密码。授权码保存在服务器，不会回传到网页。</div>
+    <div class="row"><button type="button" onclick="testMail()">发送测试邮件</button><button class="primary" type="submit">保存设置</button></div>
+    <div class="notice" id="smtpMsg"></div>
+  </form>
+</dialog>
+
+<dialog id="backgrounds">
+  <div class="modalhead"><h2>背景图片轮播</h2><button onclick="closeDialog('backgrounds')">关闭</button></div>
+  <div class="field"><label>添加背景图片（JPG / PNG / WebP，单张不超过 5MB）</label><input id="bgFile" type="file" accept="image/jpeg,image/png,image/webp"></div>
+  <div class="row">
+    <div class="field"><label>轮播间隔（秒）</label><input id="bgInterval" type="number" min="5" max="3600" value="30"></div>
+    <div class="field check"><input id="useApi" type="checkbox" checked><label for="useApi">使用在线随机壁纸（API）</label></div>
+    <button class="primary" onclick="uploadBg()">上传图片</button>
+  </div>
+  <div class="hint">开启后每次刷新都向在线壁纸 API 随机取图；关闭则使用内置图和上传的图片。上传的图只作备用。</div>
+  <div class="gallery" id="gallery"></div>
+  <div class="notice" id="bgMsg"></div>
+</dialog>
+
 <script>
-const $=id=>document.getElementById(id);let bgList=[],bgIndex=0,bgTimer=null,bgSeconds=15;
+const $=id=>document.getElementById(id);
+const BUILTIN=["/bg/p103613710.jpg","/bg/p113114703.jpg","/bg/p120337189.jpg","/bg/p94927949.jpg"];
+let bgList=[],bgTimer=null,bgSeconds=15,lastPick="";
+
 function fmt(v){if(!v)return "—";try{return new Date(v).toLocaleString("zh-CN",{hour12:false})}catch{return v}}
 async function api(url,opts={}){const r=await fetch(url,{cache:"no-store",...opts});let d={};try{d=await r.json()}catch{}if(!r.ok)throw Error(d.error||"HTTP "+r.status);return d}
-async function refresh(){try{const s=await api("/api/status");const st=$("status");st.className="status "+s.status;const words={online:"在线",offline:"离线",unknown:"等待检测"};st.replaceChildren();const dot=document.createElement("span");dot.className="dot";st.append(dot,document.createTextNode(words[s.status]||s.status));$("target").textContent=s.target;$("interval").textContent=s.interval;$("lastOnline").textContent=fmt(s.last_online);$("lastCheck").textContent=fmt(s.last_check);$("failures").textContent=s.failures;$("updated").textContent="更新于 "+new Date().toLocaleTimeString("zh-CN",{hour12:false});const list=$("events");list.replaceChildren();if(!s.events?.length){const li=document.createElement("li");li.textContent="暂无事件";list.append(li)}else for(const e of s.events){const li=document.createElement("li"),t=document.createElement("span"),m=document.createElement("span");t.className="time";t.textContent=fmt(e.time);m.className="message kind-"+(e.kind||"info");m.textContent=e.message;li.append(t,m);list.append(li)}}catch(e){$("updated").textContent="连接失败："+e.message}}
+
+async function refresh(){
+  try{
+    const s=await api("/api/status");
+    const st=$("status");
+    st.className="status "+s.status;
+    const words={online:"在线",offline:"离线",unknown:"等待检测"};
+    st.replaceChildren();
+    const dot=document.createElement("span");dot.className="dot";
+    st.append(dot,document.createTextNode(words[s.status]||s.status));
+    $("target").textContent=s.target;
+    $("interval").textContent=s.interval;
+    $("lastOnline").textContent=fmt(s.last_online);
+    $("lastCheck").textContent=fmt(s.last_check);
+    $("failures").textContent=s.failures;
+    $("updated").textContent="更新于 "+new Date().toLocaleTimeString("zh-CN",{hour12:false});
+    const list=$("events");list.replaceChildren();
+    if(!s.events?.length){const li=document.createElement("li");li.textContent="暂无事件";list.append(li)}
+    else for(const e of s.events){
+      const li=document.createElement("li"),t=document.createElement("span"),m=document.createElement("span");
+      t.className="time";t.textContent=fmt(e.time);
+      m.className="message kind-"+(e.kind||"info");m.textContent=e.message;
+      li.append(t,m);list.append(li);
+    }
+  }catch(e){$("updated").textContent="连接失败："+e.message}
+}
+
 function closeDialog(id){$(id).close()}
-async function openSettings(){try{const d=await api("/api/config"),m=d.smtp;$("enabled").checked=m.enabled;$("host").value=m.host;$("port").value=m.port;$("ssl").value=String(m.use_ssl);$("username").value=m.username;$("from").value=m.from_addr;$("to").value=(m.to_addrs||[]).join(", ");$("password").value="";$("smtpMsg").textContent="";$("settings").showModal()}catch(e){alert(e.message)}}
-$("smtpForm").addEventListener("submit",async e=>{e.preventDefault();$("smtpMsg").textContent="正在保存…";try{await api("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({smtp:{enabled:$("enabled").checked,host:$("host").value,port:Number($("port").value),use_ssl:$("ssl").value==="true",username:$("username").value,from_addr:$("from").value,to_addrs:$("to").value.split(",").map(x=>x.trim()).filter(Boolean),password:$("password").value}})});$("password").value="";$("smtpMsg").textContent="保存成功。"}catch(e){$("smtpMsg").textContent="保存失败："+e.message}});
-async function testMail(){ $("smtpMsg").textContent="正在发送测试邮件…";try{const d=await api("/api/test-email",{method:"POST"});$("smtpMsg").textContent=d.message}catch(e){$("smtpMsg").textContent="发送失败："+e.message}}
-async function openBackgrounds(){try{const d=await api("/api/config");bgList=d.backgrounds||[];renderGallery();$("bgMsg").textContent="";$("backgrounds").showModal()}catch(e){alert(e.message)}}
-function renderGallery(){const g=$("gallery");g.replaceChildren();for(const n of bgList){const box=document.createElement("div");box.className="thumb";const im=document.createElement("img");im.src="/backgrounds/"+encodeURIComponent(n);const b=document.createElement("button");b.textContent="删除";b.onclick=()=>deleteBg(n);box.append(im,b);g.append(box)}applyBackground()}
-async function uploadBg(){const f=$("bgFile").files[0];if(!f){$("bgMsg").textContent="请先选择图片";return}if(f.size>5*1024*1024){$("bgMsg").textContent="图片超过 5MB";return}const reader=new FileReader();reader.onload=async()=>{try{const d=await api("/api/backgrounds",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({filename:f.name,data:reader.result})});bgList=d.backgrounds;renderGallery();$("bgFile").value="";$("bgMsg").textContent="上传成功"}catch(e){$("bgMsg").textContent="上传失败："+e.message}};reader.readAsDataURL(f)}
-async function deleteBg(n){if(!confirm("删除这张背景图片？"))return;try{const d=await api("/api/backgrounds/"+encodeURIComponent(n),{method:"DELETE"});bgList=d.backgrounds;renderGallery()}catch(e){$("bgMsg").textContent=e.message}}
-function applyBackground(){clearInterval(bgTimer);bgIndex=0;bgSeconds=Math.max(5,Math.min(3600,Number($("bgInterval").value)||15));const set=()=>{if(!bgList.length){$("wall").style.backgroundImage="linear-gradient(120deg,rgba(5,12,24,.82),rgba(5,12,24,.48)),radial-gradient(ellipse at 15% 15%,#344c70,#0a1220 70%)";return}const name=bgList[bgIndex%bgList.length];$("wall").style.backgroundImage='linear-gradient(120deg,rgba(5,12,24,.70),rgba(5,12,24,.36)),url("/backgrounds/'+encodeURIComponent(name)+'")';bgIndex++};set();if(bgList.length>1)bgTimer=setInterval(set,bgSeconds*1000)}
-$("bgInterval").addEventListener("change",applyBackground);refresh();setInterval(refresh,5000);openBackgroundsInitial();
-async function openBackgroundsInitial(){try{const d=await api("/api/config");bgList=d.backgrounds||[];applyBackground()}catch{}}
-</script></body></html>
+
+async function openSettings(){
+  try{
+    const d=await api("/api/config"),m=d.smtp;
+    $("enabled").checked=m.enabled;$("host").value=m.host;$("port").value=m.port;
+    $("ssl").value=String(m.use_ssl);$("username").value=m.username;
+    $("from").value=m.from_addr;$("to").value=(m.to_addrs||[]).join(", ");
+    $("password").value="";$("smtpMsg").textContent="";
+    $("settings").showModal();
+  }catch(e){alert(e.message)}
+}
+
+$("smtpForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  $("smtpMsg").textContent="正在保存…";
+  try{
+    await api("/api/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({smtp:{
+      enabled:$("enabled").checked,host:$("host").value,port:Number($("port").value),
+      use_ssl:$("ssl").value==="true",username:$("username").value,from_addr:$("from").value,
+      to_addrs:$("to").value.split(",").map(x=>x.trim()).filter(Boolean),password:$("password").value
+    }})});
+    $("password").value="";
+    $("smtpMsg").textContent="保存成功。";
+  }catch(e){$("smtpMsg").textContent="保存失败："+e.message}
+});
+
+async function testMail(){
+  $("smtpMsg").textContent="正在发送测试邮件…";
+  try{const d=await api("/api/test-email",{method:"POST"});$("smtpMsg").textContent=d.message}
+  catch(e){$("smtpMsg").textContent="发送失败："+e.message}
+}
+
+async function openBackgrounds(){
+  try{
+    const d=await api("/api/config");
+    bgList=d.backgrounds||[];
+    renderGallery();
+    $("bgMsg").textContent="";
+    $("backgrounds").showModal();
+  }catch(e){alert(e.message)}
+}
+
+function renderGallery(){
+  const g=$("gallery");g.replaceChildren();
+  for(const n of bgList){
+    const box=document.createElement("div");box.className="thumb";
+    const im=document.createElement("img");im.src="/backgrounds/"+encodeURIComponent(n);
+    const b=document.createElement("button");b.textContent="删除";b.onclick=()=>deleteBg(n);
+    box.append(im,b);g.append(box);
+  }
+}
+
+async function uploadBg(){
+  const f=$("bgFile").files[0];
+  if(!f){$("bgMsg").textContent="请先选择图片";return}
+  if(f.size>5*1024*1024){$("bgMsg").textContent="图片超过 5MB";return}
+  const reader=new FileReader();
+  reader.onload=async()=>{
+    try{
+      const d=await api("/api/backgrounds",{method:"POST",headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({filename:f.name,data:reader.result})});
+      bgList=d.backgrounds;renderGallery();applyBackground();
+      $("bgFile").value="";$("bgMsg").textContent="上传成功";
+    }catch(e){$("bgMsg").textContent="上传失败："+e.message}
+  };
+  reader.readAsDataURL(f);
+}
+
+async function deleteBg(n){
+  if(!confirm("删除这张背景图片？"))return;
+  try{
+    const d=await api("/api/backgrounds/"+encodeURIComponent(n),{method:"DELETE"});
+    bgList=d.backgrounds;renderGallery();applyBackground();
+  }catch(e){$("bgMsg").textContent=e.message}
+}
+
+/* 随机壁纸：在线 API + 本地兜底 */
+const API_SRC=[
+  "https://t.alcy.cc/pc",
+  "https://t.mwm.moe/pc",
+  "https://t.mwm.moe/mp",
+  "https://www.dmoe.cc/random.php"
+];
+let apiCursor=0;
+function bust(u){return u+(u.includes("?")?"&":"?")+"_="+Date.now()}
+function localPool(){return BUILTIN.map(u=>encodeURI(u)).concat(bgList.map(n=>"/backgrounds/"+encodeURIComponent(n)))}
+function loadImg(u){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>res(u);im.onerror=rej;im.src=u})}
+async function nextWall(){
+  const box=$("useApi"),useApi=!box||box.checked;
+  if(useApi){
+    for(let i=0;i<API_SRC.length;i++){
+      const idx=(apiCursor+i)%API_SRC.length;
+      const u=bust(API_SRC[idx]);
+      try{
+        await loadImg(u);
+        apiCursor=(idx+1)%API_SRC.length;
+        $("wall").style.backgroundImage=`url("${u}")`;
+        return;
+      }catch{}
+    }
+  }
+  const all=localPool();
+  if(!all.length){$("wall").style.backgroundImage="none";return}
+  $("wall").style.backgroundImage=`url("${all[Math.floor(Math.random()*all.length)]}")`;
+}
+function applyBackground(){
+  clearInterval(bgTimer);
+  bgSeconds=Math.max(5,Math.min(3600,Number($("bgInterval").value)||30));
+  nextWall();
+  bgTimer=setInterval(nextWall,bgSeconds*1000);
+}
+$("useApi")&&$("useApi").addEventListener("change",applyBackground);
+
+$("bgInterval").addEventListener("change",applyBackground);
+refresh();setInterval(refresh,5000);
+openBackgroundsInitial();
+async function openBackgroundsInitial(){
+  try{const d=await api("/api/config");bgList=d.backgrounds||[];applyBackground()}
+  catch{applyBackground()}
+}
+</script>
+</body>
+</html>
